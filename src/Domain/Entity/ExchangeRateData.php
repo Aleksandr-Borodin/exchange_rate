@@ -42,7 +42,7 @@ class ExchangeRateData
     #[ORM\Column(name: 'quote_currency', length: 3)]
     private string $quoteCurrency;
 
-    #[ORM\Column(type: 'decimal', precision: 20, scale: 8)]
+    #[ORM\Column(name: 'rate_value', type: 'decimal', precision: 20, scale: 8)]
     private string $rateValue;
 
     #[ORM\Column(name: 'created_at', type: 'datetime_immutable')]
@@ -50,10 +50,10 @@ class ExchangeRateData
 
     /**
      * @param DateTimeImmutable $rateDate
-     * @param string $source
      * @param string $baseCurrency
      * @param string $quoteCurrency
      * @param string $rateValue
+     * @param string $source
      */
     public function __construct(DateTimeImmutable $rateDate, string $baseCurrency, string $quoteCurrency, string $rateValue, string $source = 'cbr')
     {
