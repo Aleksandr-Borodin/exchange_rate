@@ -55,7 +55,7 @@ class ExchangeRateData
      * @param string $quoteCurrency
      * @param string $rateValue
      */
-    public function __construct(DateTimeImmutable $rateDate, string $source = 'cbr', string $baseCurrency, string $quoteCurrency, string $rateValue)
+    public function __construct(DateTimeImmutable $rateDate, string $baseCurrency, string $quoteCurrency, string $rateValue, string $source = 'cbr')
     {
         $this->rateDate = $rateDate;
         $this->source = strtolower($source);
