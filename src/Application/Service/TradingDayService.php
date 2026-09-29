@@ -31,11 +31,15 @@ class TradingDayService
 
     /**
      * @param string $rateDate
+     * @param bool $tradingDay
      * @return string
      */
-    public function _preparePrevRateDate(string $rateDate): string
+    public function _preparePrevRateDate(string $rateDate, bool $tradingDay = true): string
     {
         $date = new DateTimeImmutable($rateDate);
+        if (!$tradingDay) {
+            return $date->modify('-1 day')->format('Y-m-d');
+        }
         for ($i = 1; $i <= 7; ++$i) {
             $prevDate = $date->modify("-{$i} day");
             if ((int) $prevDate->format('N') <= 5) {
