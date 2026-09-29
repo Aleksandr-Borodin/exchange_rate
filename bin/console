@@ -1,0 +1,22 @@
+#!/usr/bin/env php
+<?php
+
+require __DIR__ . '/../vendor/autoload.php';
+
+use Symfony\Component\Console\Application;
+use Doctrine\Migrations\Tools\Console\Command;
+
+$dependencyFactory = require __DIR__ . '/../config/migrations.php';
+// we have $entityManager;
+$app = new Application('Exchange Rate', '1.0.0');
+$app->addCommands([
+    new Command\DiffCommand($dependencyFactory),
+    new Command\MigrateCommand($dependencyFactory),
+    new Command\StatusCommand($dependencyFactory),
+]);
+
+$app->add(
+    new \ExchangeRate\Presentation\Console\CollectRateCommand()
+);
+
+$app->run();
