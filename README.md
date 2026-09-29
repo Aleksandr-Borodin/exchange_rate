@@ -1,11 +1,35 @@
 # exchange_rate
-Перейти в папку с проектом
 
-Собрать контейнер
+## Запуск проекта
+
+Перейти в папку проекта:
+
+```bash
+cd ~/exchange_rate
+```
+
+Собрать Docker-контейнеры:
+
+```bash
 docker compose build --no-cache
+```
 
-Запустить контейнер
+Запустить контейнеры:
+
+```bash
 docker compose up -d
+```
 
-Запустить сбор данных за n дней
+## Сбор курсов
+
+Запустить сбор данных за указанное количество дней:
+
+```bash
 docker compose exec php php bin/console cbr:collect n
+```
+
+Например, для сбора данных за 10 дней:
+
+```bash
+docker compose exec php php bin/console cbr:collect 10
+```
