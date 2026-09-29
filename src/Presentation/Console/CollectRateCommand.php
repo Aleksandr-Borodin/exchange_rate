@@ -18,7 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use ExchangeRate\Application\Service\CollectRateService;
 
 #[AsCommand(
-    name: 'cbr:collect',
+    name: 'rate:collect',
     description: 'run tasks for worker',
 )]
 class CollectRateCommand extends Command
@@ -50,10 +50,10 @@ class CollectRateCommand extends Command
     {
         $days = (int) $input->getArgument('days');
         $source = (string) $input->getArgument('source');
-        if($days && $source) {
-            $this->_crService->collectDays($days, $source);
-            return Command::SUCCESS;
+        if(!$days || !$source) {
+            return Command::FAILURE;
         }
-        return Command::FAILURE;
+        $this->_crService->collectDays($days, $source);
+        return Command::SUCCESS;
     }
 }

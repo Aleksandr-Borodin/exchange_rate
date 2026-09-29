@@ -14,8 +14,11 @@ use ExchangeRate\Infrastructure\Persistence\Doctrine\ExchangeRateDayRepository;
 
 class ExchangeRateDayService
 {
+    /**
+     * @param ExchangeRateDayRepository $_erDayRepository
+     */
     public function __construct(private readonly ExchangeRateDayRepository $_erDayRepository) {}
-    
+
     /**
      * @param array $daysList
      * @param string $source
@@ -29,14 +32,24 @@ class ExchangeRateDayService
         }   
         return $daysList;
     }
-    
+
     /**
-     * @param string $dayResult
+     * @param string $rateDate
      * @param string $source
      * @return bool
      */
-    public function writeRateDate(string $dayResult, string $source): bool
+    public function writeRateDate(string $rateDate, string $source): bool
     {
-        return $this->_erDayRepository->writeRateDate($dayResult, $source);
+        return $this->_erDayRepository->writeRateDate($rateDate, $source);
+    }
+
+    /**
+     * @param string $rateDate
+     * @param string $source
+     * @return string|bool
+     */
+    public function getRowStatus(string $rateDate, string $source): string|bool
+    {
+        return $this->_erDayRepository->getRowStatus($rateDate, $source);
     }
 }

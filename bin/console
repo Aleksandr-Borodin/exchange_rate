@@ -6,12 +6,14 @@ require __DIR__ . '/../vendor/autoload.php';
 use Symfony\Component\Console\Application;
 use Doctrine\Migrations\Tools\Console\Command;
 use ExchangeRate\Application\Service\CollectRateService;
+use ExchangeRate\Application\Service\GetRateService;
 use ExchangeRate\Application\Service\TradingDayService;
 use ExchangeRate\Application\Service\ExchangeRateDataService;
 use ExchangeRate\Application\Service\ExchangeRateDayService;
 use ExchangeRate\Infrastructure\Persistence\Doctrine\ExchangeRateDataRepository;
 use ExchangeRate\Infrastructure\Persistence\Doctrine\ExchangeRateDayRepository;
 use ExchangeRate\Infrastructure\Messaging\CollectRateDispatcher;
+use ExchangeRate\Infrastructure\Cache\RateCache;
 
 $dependencyFactory = require __DIR__ . '/../config/migrations.php';
 // we have $entityManager;
@@ -23,6 +25,8 @@ $erDayRepository = new ExchangeRateDayRepository($entityManager);
 $erDayService = new ExchangeRateDayService($erDayRepository);
 $dispatcher = new CollectRateDispatcher($_ENV['RABBITMQ_HOST'],(int) $_ENV['RABBITMQ_PORT'], $_ENV['RABBITMQ_USER'], $_ENV['RABBITMQ_PASSWORD'], $_ENV['RABBITMQ_VHOST']);
 $crService = new CollectRateService($tdService, $erDataService, $erDayService, $dispatcher);
+$rateCache = new RateCache($_ENV['REDIS_DSN']);
+$grService = new GetRateService($tdService, $erDataService, $erDayService, $dispatcher, $rateCache);
 $app->addCommands([
     new Command\DiffCommand($dependencyFactory),
     new Command\MigrateCommand($dependencyFactory),
@@ -31,6 +35,10 @@ $app->addCommands([
 
 $app->add(
     new \ExchangeRate\Presentation\Console\CollectRateCommand($crService)
+);
+
+$app->add(
+    new \ExchangeRate\Presentation\Console\GetRateCommand($grService)
 );
 
 $app->run();

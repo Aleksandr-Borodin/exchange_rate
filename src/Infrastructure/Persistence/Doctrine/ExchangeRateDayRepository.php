@@ -61,17 +61,45 @@ class ExchangeRateDayRepository extends AbstractDoctrineRepository
     }
 
     /**
-     * @param string $dayResult
+     * @param string $rateDate
      * @param string $source
      * @return bool
      */
-    public function writeRateDate(string $dayResult, string $source): bool
+    public function writeRateDate(string $rateDate, string $source): bool
     {
         try {
-            $exchangeRateDay = new ExchangeRateDay(new DateTimeImmutable($dayResult), $source);
+            $exchangeRateDay = new ExchangeRateDay(new DateTimeImmutable($rateDate), $source);
             $this->em->persist($exchangeRateDay);
             $this->em->flush();
             return true;
+        } catch (Exception $e) {
+            return false;
+        } catch (Error $e) {
+            return false;
+        }
+    }
+
+    /**
+     * @param string $rateDate
+     * @param string $source
+     * @return string|bool
+     */
+    public function getRowStatus(string $rateDate, string $source): string|bool
+    {
+        try {
+            $result = $this->repository
+                ->createQueryBuilder('erd')
+                ->select('erd.status')
+                ->where('erd.rateDate = :rateDate')
+                ->andWhere('erd.source = :source')
+                ->setParameter('rateDate', new DateTimeImmutable($rateDate))
+                ->setParameter('source', $source)
+                ->getQuery()
+                ->getOneOrNullResult();
+            if (!$result) {
+                return false;
+            }
+            return $result['status']->value;
         } catch (Exception $e) {
             return false;
         } catch (Error $e) {
