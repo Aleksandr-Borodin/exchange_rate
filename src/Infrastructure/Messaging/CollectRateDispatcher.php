@@ -30,17 +30,17 @@ class CollectRateDispatcher
     public function __construct(private readonly string $_host, private readonly int $_port, private readonly string $_user, private readonly string $_password, private readonly string $_vhost = '/') {}
 
     /**
-     * @param string $dayResult
+     * @param string $rateDate
      * @param string $source
      * @return bool
      */
-    public function dispatch(string $dayResult, string $source): bool
+    public function dispatch(string $rateDate, string $source): bool
     {
         try {
             $connection = new AMQPStreamConnection($this->_host, $this->_port, $this->_user, $this->_password, $this->_vhost);
             $channel = $connection->channel();
             $channel->queue_declare(self::QUEUE, false, true, false, false);
-            $message = new AMQPMessage($this->_prepareMessageText($dayResult, $source), $this->_prepareMessageParams());
+            $message = new AMQPMessage($this->_prepareMessageText($rateDate, $source), $this->_prepareMessageParams());
             $channel->basic_publish($message, '', self::QUEUE);
             $channel->close();
             $connection->close();
@@ -51,13 +51,13 @@ class CollectRateDispatcher
     }
 
     /**
-     * @param string $dayResult
+     * @param string $rateDate
      * @param string $source
      * @return string
      */
-    private function _prepareMessageText(string $dayResult, string $source): string
+    private function _prepareMessageText(string $rateDate, string $source): string
     {
-        $messageArray = ['date' => $dayResult, 'source' => $source,];
+        $messageArray = ['date' => $rateDate, 'source' => $source,];
         return json_encode($messageArray, JSON_THROW_ON_ERROR);
     }
 
