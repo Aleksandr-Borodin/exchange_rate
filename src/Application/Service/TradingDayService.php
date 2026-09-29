@@ -28,4 +28,20 @@ class TradingDayService
         }
         return $result;
     }
+
+    /**
+     * @param string $rateDate
+     * @return string
+     */
+    public function _preparePrevRateDate(string $rateDate): string
+    {
+        $date = new DateTimeImmutable($rateDate);
+        for ($i = 1; $i <= 7; ++$i) {
+            $prevDate = $date->modify("-{$i} day");
+            if ((int) $prevDate->format('N') <= 5) {
+                return $prevDate->format('Y-m-d');
+            }
+        }
+        return '';
+    }
 }
