@@ -22,13 +22,13 @@ docker compose up -d
 
 ## Сбор курсов
 
-Запустить сбор данных за указанное количество дней:
+Запустить постановку очереди для будущего сбора данных за указанное количество дней:
 
 ```bash
 docker compose exec php php bin/console cbr:collect n
 ```
 
-Например, для сбора данных за 10 дней:
+Например, за 10 дней:
 
 ```bash
 docker compose exec php php bin/console cbr:collect 10
