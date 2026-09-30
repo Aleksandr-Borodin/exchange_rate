@@ -42,7 +42,7 @@ class ExchangeRateData
     #[ORM\Column(name: 'quote_currency', length: 3)]
     private string $quoteCurrency;
 
-    #[ORM\Column(name: 'rate_value', type: 'decimal', precision: 20, scale: 8)]
+    #[ORM\Column(name: 'rate_value', type: 'decimal', precision: 40, scale: 20)]
     private string $rateValue;
 
     #[ORM\Column(name: 'created_at', type: 'datetime_immutable')]

@@ -42,7 +42,7 @@ final class Version20260929013502 extends AbstractMigration
                 source VARCHAR(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT 'cbr',
                 base_currency VARCHAR(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
                 quote_currency VARCHAR(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-                rate_value NUMERIC(20, 8) NOT NULL,
+                rate_value NUMERIC(40, 20) NOT NULL,
                 created_at DATETIME NOT NULL,
                 UNIQUE INDEX uniq_{$tableName}_dt_sour_cur (rate_date, source, base_currency, quote_currency),
                 PRIMARY KEY (rate_id)
