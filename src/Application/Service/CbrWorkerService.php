@@ -25,6 +25,11 @@ class CbrWorkerService
     private const RETRY_DELAY = 10;
 
     /**
+     * @var int
+     */
+    private const CONTINUE_DELAY = 4;
+
+    /**
      * @var string
      */
     private const DEF_BASE_CURRENCY = 'RUB';
@@ -47,10 +52,11 @@ class CbrWorkerService
             function ($message): void {
                 if ($this->_processMessage($message)) {
                     $message->ack();
+                    sleep(self::CONTINUE_DELAY);
                     return;
                 }
-                sleep(self::RETRY_DELAY);
                 $message->nack(false, true);
+                sleep(self::RETRY_DELAY);
             }
         );
     }
