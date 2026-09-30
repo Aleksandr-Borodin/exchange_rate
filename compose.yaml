@@ -8,7 +8,18 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-    command: sh -c "composer install --no-interaction --prefer-dist && php bin/console migrations:migrate --no-interaction && tail -f /dev/null"
+    command: >
+      sh -c "
+        composer install --no-interaction --prefer-dist &&
+        php bin/console migrations:migrate --no-interaction &&
+        touch /tmp/app-ready &&
+        tail -f /dev/null
+      "
+    healthcheck:
+      test: ["CMD", "test", "-f", "/tmp/app-ready"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
 
   worker:
     build:
@@ -17,10 +28,10 @@ services:
     volumes:
       - .:/app
     depends_on:
-      mysql:
+      php:
         condition: service_healthy
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
     command: php bin/console rate:worker
     deploy:
       replicas: ${WORKER_COUNT:-1}
@@ -35,6 +46,12 @@ services:
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
     ports:
       - "${RABBITMQ_PORT}:${RABBITMQ_PORT}"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
 
   mysql:
     image: mysql:8.0
@@ -55,4 +72,3 @@ services:
 
 volumes:
   mysql_data:
-
