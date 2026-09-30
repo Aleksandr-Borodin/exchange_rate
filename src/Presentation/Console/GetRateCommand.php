@@ -74,7 +74,7 @@ class GetRateCommand extends Command
         $quoteCurrency = strtoupper((string) $input->getArgument('quoteCurrency'));
         $baseCurrency = strtoupper((string) $input->getArgument('baseCurrency'));
         $source = strtolower((string) $input->getOption('source'));
-        if(!$rateDate || !$quoteCurrency || !$baseCurrency || !$source) {
+        if (!$rateDate || !$quoteCurrency || !$baseCurrency || !$source) {
             return Command::FAILURE;
         }
         $result = $this->_grService->getRate($rateDate, $quoteCurrency, $baseCurrency, $source);
@@ -100,8 +100,14 @@ class GetRateCommand extends Command
         ];
         $message = '';
         foreach ($fields as $key => $label) {
-            if (empty($result[$key])) { continue; }
-            $message .= ($message ? "\n" : '') . $label . ': ' . $result[$key];
+            if (empty($result[$key])) {
+                continue;
+            }
+            $value = $result[$key];
+            if (in_array($key, ['rate_value', 'difference'], true)) {
+                $value = number_format((float) $value, 4, '.', '');
+            }
+            $message .= ($message ? "\n" : '') . $label . ': ' . $value;
         }
         if ($message !== '') {
             $output->writeln($message);
