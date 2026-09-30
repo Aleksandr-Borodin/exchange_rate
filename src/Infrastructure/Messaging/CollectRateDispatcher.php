@@ -71,4 +71,20 @@ class CollectRateDispatcher
             'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT,
         ];
     }
+
+    /**
+     * @param callable $callback
+     * @return void
+     */
+    public function consume(callable $callback): void
+    {
+        $connection = new AMQPStreamConnection($this->_host, $this->_port, $this->_user, $this->_password, $this->_vhost);
+        $channel = $connection->channel();
+        $channel->queue_declare(self::QUEUE, false, true, false, false);
+        $channel->basic_qos(null, 1, null);
+        $channel->basic_consume(self::QUEUE, '', false, false, false, false, $callback);
+        while ($channel->is_consuming()) {
+            $channel->wait();
+        }
+    }
 }

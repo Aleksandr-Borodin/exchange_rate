@@ -30,4 +30,20 @@ class ExchangeRateDataService
     {
         return $this->_erDataRepository->getRow($rateDate, $quoteCurrency, $baseCurrency, $source);
     }
+
+    /**
+     * @param string $rateDate
+     * @param string $quoteCurrency
+     * @param string $baseCurrency
+     * @param string $source
+     * @param float $rateValue
+     * @return bool
+     */
+    public function tryCreateRow(string $rateDate, string $quoteCurrency, string $baseCurrency, string $source, float $rateValue): bool
+    {
+        if ($this->_erDataRepository->checkRow($rateDate, $quoteCurrency, $baseCurrency, $source)) {
+            return true;
+        }
+        return $this->_erDataRepository->createRow($rateDate, $quoteCurrency, $baseCurrency, $source, $rateValue);
+    }
 }

@@ -65,4 +65,63 @@ class ExchangeRateDataRepository extends AbstractDoctrineRepository
             return false;
         }
     }
+
+    /**
+     * @param string $rateDate
+     * @param string $quoteCurrency
+     * @param string $baseCurrency
+     * @param string $source
+     * @return bool
+     */
+    public function checkRow(string $rateDate, string $quoteCurrency, string $baseCurrency, string $source): bool
+    {
+        try {
+            $result = $this->repository
+                ->createQueryBuilder('erd')
+                ->select('erd.rateId')
+                ->where('erd.rateDate = :rateDate')
+                ->andWhere('erd.quoteCurrency = :quoteCurrency')
+                ->andWhere('erd.baseCurrency = :baseCurrency')
+                ->andWhere('erd.source = :source')
+                ->setParameter('rateDate', new \DateTimeImmutable($rateDate))
+                ->setParameter('quoteCurrency', $quoteCurrency)
+                ->setParameter('baseCurrency', $baseCurrency)
+                ->setParameter('source', $source)
+                ->getQuery()
+                ->getOneOrNullResult();
+            return (bool) $result;
+        } catch (Exception $e) {
+            return false;
+        } catch (Error $e) {
+            return false;
+        }
+    }
+
+    /**
+     * @param string $rateDate
+     * @param string $quoteCurrency
+     * @param string $baseCurrency
+     * @param string $source
+     * @param float $rateValue
+     * @return bool
+     */
+    public function createRow(string $rateDate, string $quoteCurrency, string $baseCurrency, string $source, float $rateValue): bool
+    {
+        try {
+            $exchangeRateData = new ExchangeRateData(
+                new \DateTimeImmutable($rateDate),
+                $baseCurrency,
+                $quoteCurrency,
+                (string) $rateValue,
+                $source
+            );
+            $this->em->persist($exchangeRateData);
+            $this->em->flush();
+            return true;
+        } catch (Exception $e) {
+            return false;
+        } catch (Error $e) {
+            return false;
+        }
+    }
 }

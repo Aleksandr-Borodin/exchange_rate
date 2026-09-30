@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace ExchangeRate\Infrastructure\Persistence\Doctrine;
 
+use ExchangeRate\Domain\Enum\ExchangeRateDayStatus;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use ExchangeRate\Domain\Entity\ExchangeRateDay;
@@ -103,6 +104,44 @@ class ExchangeRateDayRepository extends AbstractDoctrineRepository
         } catch (Exception $e) {
             return false;
         } catch (Error $e) {
+            return false;
+        }
+    }
+
+    /**
+     * @param string $rateDate
+     * @param string $source
+     * @param string $status
+     * @return bool
+     */
+    public function updateStatus(string $rateDate, string $source, string $status): bool
+    {
+        try {
+            $exchangeRateDay = $this->repository
+                ->createQueryBuilder('erd')
+                ->where('erd.rateDate = :rateDate')
+                ->andWhere('erd.source = :source')
+                ->setParameter('rateDate', new DateTimeImmutable($rateDate))
+                ->setParameter('source', $source)
+                ->getQuery()
+                ->getOneOrNullResult();
+            if (!$exchangeRateDay) {
+                return false;
+            }
+            if ($status === ExchangeRateDayStatus::PROCESSING->value) {
+                $exchangeRateDay->markProcessing();
+                $exchangeRateDay->incrementAttempts();
+            } elseif ($status === ExchangeRateDayStatus::COMPLETED->value) {
+                $exchangeRateDay->markCompleted();
+            } elseif ($status === ExchangeRateDayStatus::FAILED->value) {
+                $exchangeRateDay->markFailed();
+            }
+            $this->em->flush();
+            return true;
+        } catch (Exception $e) {
+            return false;
+        } catch (Error $e) {
+
             return false;
         }
     }

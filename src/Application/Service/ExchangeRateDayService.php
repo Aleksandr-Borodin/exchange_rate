@@ -52,4 +52,15 @@ class ExchangeRateDayService
     {
         return $this->_erDayRepository->getRowStatus($rateDate, $source);
     }
+
+    /**
+     * @param string $rateDate
+     * @param string $source
+     * @param string $status
+     * @return bool
+     */
+    public function updateStatus(string $rateDate, string $source, string $status): bool
+    {
+        return $this->_erDayRepository->updateStatus($rateDate, $source, $status);
+    }
 }

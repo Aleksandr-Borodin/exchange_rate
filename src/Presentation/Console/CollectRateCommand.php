@@ -50,7 +50,7 @@ class CollectRateCommand extends Command
     {
         $days = (int) $input->getArgument('days');
         $source = (string) $input->getArgument('source');
-        if(!$days || !$source) {
+        if (!$days || !$source) {
             return Command::FAILURE;
         }
         $this->_crService->collectDays($days, $source);

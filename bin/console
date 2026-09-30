@@ -10,13 +10,15 @@ use ExchangeRate\Application\Service\GetRateService;
 use ExchangeRate\Application\Service\TradingDayService;
 use ExchangeRate\Application\Service\ExchangeRateDataService;
 use ExchangeRate\Application\Service\ExchangeRateDayService;
+use ExchangeRate\Application\Service\CbrWorkerService;
 use ExchangeRate\Infrastructure\Persistence\Doctrine\ExchangeRateDataRepository;
 use ExchangeRate\Infrastructure\Persistence\Doctrine\ExchangeRateDayRepository;
 use ExchangeRate\Infrastructure\Messaging\CollectRateDispatcher;
 use ExchangeRate\Infrastructure\Cache\RateCache;
+use ExchangeRate\Infrastructure\Cbr\CbrClient;
 
 $dependencyFactory = require __DIR__ . '/../config/migrations.php';
-// we have $entityManager;
+// $entityManager isset;
 $app = new Application('Exchange Rate', '1.0.0');
 $tdService = new TradingDayService();
 $erDataRepository = new ExchangeRateDataRepository($entityManager);
@@ -27,6 +29,9 @@ $dispatcher = new CollectRateDispatcher($_ENV['RABBITMQ_HOST'],(int) $_ENV['RABB
 $crService = new CollectRateService($tdService, $erDataService, $erDayService, $dispatcher);
 $rateCache = new RateCache($_ENV['REDIS_DSN']);
 $grService = new GetRateService($tdService, $erDataService, $erDayService, $dispatcher, $rateCache);
+$cbrClient = new CbrClient();
+$cwService = new CbrWorkerService($erDataService, $erDayService, $dispatcher, $rateCache, $cbrClient);
+
 $app->addCommands([
     new Command\DiffCommand($dependencyFactory),
     new Command\MigrateCommand($dependencyFactory),
@@ -39,6 +44,10 @@ $app->add(
 
 $app->add(
     new \ExchangeRate\Presentation\Console\GetRateCommand($grService)
+);
+
+$app->add(
+    new \ExchangeRate\Presentation\Console\CbrWorkerCommand($cwService)
 );
 
 $app->run();

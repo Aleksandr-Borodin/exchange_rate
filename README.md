@@ -67,3 +67,9 @@ docker compose exec php php bin/console rate:get 2026-09-29 USD RUB --source=cbr
 
 Команда возвращает курс за указанную дату, разницу с предыдущим торговым днём и статус получения данных.
 
+
+## Запуск worker-а (вручную)
+
+```bash
+docker compose exec php php bin/console rate:worker
+```
